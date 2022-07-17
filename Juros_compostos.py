@@ -2,11 +2,11 @@ import datetime
 
 
 class DadosIniciais:
-    def __init__(self, capital_inicial: float, taxa_juros: float, periodizacao,
+    def __init__(self, capital_inicial: float, taxa_juros: float, periodizacao: str,
                  ano_final: int, mes_final: int, dia_final: int):
         self.capital_inicial = capital_inicial
         self.taxa_juros = taxa_juros
-        self.periodizacao = periodizacao
+        self.periodizacao = periodizacao.lower()
         self.data_final = f"{ano_final}-{mes_final}-{dia_final}"
         self.dia_hoje = datetime.datetime.today()
         self.prazo = (datetime.datetime.fromisoformat(self.data_final) - self.dia_hoje).days
@@ -19,17 +19,17 @@ class JurosCompostos(DadosIniciais):
         self.ano_final = ano_final
         self.mes_final = mes_final
         self.dia_final = dia_final
-        try:
-            if ".".find(periodizacao):
-                ".".removesuffix(".")
-            if periodizacao == "am":
-                self.periodizacao = 30
-            elif periodizacao == "aa":
-                self.periodizacao = 365
-            elif periodizacao == "as":
-                self.periodizacao = 180
-        except ValueError:
-            raise ValueError
+
+        for elemento in self.periodizacao:
+            if elemento == ".":
+                self.periodizacao = self.periodizacao.replace(elemento, "")
+        self.periodizacao = self.periodizacao.strip()
+        if self.periodizacao == "am":
+            self.periodizacao = 30
+        elif self.periodizacao == "aa":
+            self.periodizacao = 365
+        elif self.periodizacao == "as":
+            self.periodizacao = 180
 
     def juros_compostos(self):
         montante = self.capital_inicial * (1 + (self.taxa_juros / 100)) ** (self.prazo / self.periodizacao)
@@ -39,5 +39,5 @@ class JurosCompostos(DadosIniciais):
 
 
 # ----------------- Exemplo de uso ----------------------#
-operacao = JurosCompostos(30000, 10.5, "aa", 2026, 12, 31)
+operacao = JurosCompostos(30000, 10.5, "am", 2026, 12, 31)
 operacao.juros_compostos()
